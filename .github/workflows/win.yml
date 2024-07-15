@@ -1,4 +1,4 @@
-name: Windows
+name: Windows.
 
 on:
   push:
@@ -37,9 +37,9 @@ on:
       - 'Telegram/Telegram/**'
       - 'Telegram/configure.sh'
       - 'Telegram/Telegram.plist'
-  workflow_dispatch:
 
 jobs:
+
   windows:
     name: Windows
     runs-on: windows-2022
@@ -175,3 +175,17 @@ jobs:
           %TDESKTOP_BUILD_DEFINE%
 
           cmake --build ..\out --config Debug --parallel
+
+      - name: Move artifact.
+        if: (env.UPLOAD_ARTIFACT == 'true') || (github.ref == 'refs/heads/nightly')
+        run: |
+          set OUT=%TBUILD%\%REPO_NAME%\out\Debug
+          mkdir artifact
+          move %OUT%\Telegram.exe artifact/
+          move %OUT%\Updater.exe artifact/
+      - uses: actions/upload-artifact@v4
+        name: Upload artifact.
+        if: (env.UPLOAD_ARTIFACT == 'true') || (github.ref == 'refs/heads/nightly')
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifact\
